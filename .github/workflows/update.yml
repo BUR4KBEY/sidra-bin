@@ -75,6 +75,24 @@ jobs:
           ssh-add ~/.ssh/id_rsa
           
           # 4. Handle AUR Push
-          # We use GIT_SSH_COMMAND to bypass strict host key checking in the CI environment
-          git remote add aur ssh://aur@aur.archlinux.org/sidra-bin.git
-          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git push -f aur main:master
+          # The AUR does not allow subdirectories (like .github).
+          # We clone the AUR repo, update its contents, and push to preserve history.
+          export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"
+          cd /tmp
+          git clone ssh://aur@aur.archlinux.org/sidra-bin.git aur-pkg
+          
+          # Copy files from the workspace to the clone
+          # Note: $GITHUB_WORKSPACE is where the action checked out the GitHub repo
+          cp "$GITHUB_WORKSPACE/PKGBUILD" "$GITHUB_WORKSPACE/.SRCINFO" "$GITHUB_WORKSPACE/.gitignore" "$GITHUB_WORKSPACE/README.md" aur-pkg/ 2>/dev/null || true
+          
+          cd aur-pkg
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "Update AUR package"
+            git push aur master
+          else
+            echo "No changes to sync to AUR"
+          fi
