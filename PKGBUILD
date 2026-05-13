@@ -2,7 +2,7 @@
 
 pkgname=sidra-bin
 pkgver=0.3.3
-pkgrel=1
+pkgrel=2
 pkgdesc="An elegant Apple Music desktop client for Linux. No frippery, just quality."
 arch=('x86_64')
 url="https://github.com/wimpysworld/sidra"
@@ -41,7 +41,7 @@ options=('!strip')
 
 # AppImage artifact name has no version (see appImage.artifactName in package.json)
 source_x86_64=(
-    "Sidra-linux-x86_64.AppImage::https://github.com/wimpysworld/sidra/releases/download/${pkgver}/Sidra-linux-x86_64.AppImage"
+    "${pkgname}-${pkgver}.AppImage::https://github.com/wimpysworld/sidra/releases/download/${pkgver}/Sidra-linux-x86_64.AppImage"
 )
 
 sha256sums_x86_64=('bccbd84242edbc9e8d4744e3e0796aad65b87538475635a2066456db28e321df')
@@ -49,7 +49,7 @@ sha256sums_x86_64=('bccbd84242edbc9e8d4744e3e0796aad65b87538475635a2066456db28e3
 prepare() {
     cd "${srcdir}"
     
-    _appimage="Sidra-linux-x86_64.AppImage"
+    _appimage="${pkgname}-${pkgver}.AppImage"
 
     chmod +x "${_appimage}"
 
@@ -64,8 +64,10 @@ package() {
     install -dm755 "${pkgdir}/opt/sidra"
     cp -a squashfs-root/. "${pkgdir}/opt/sidra/"
 
-    # Remove the AppRun launcher; we provide our own wrapper below
+    # Remove redundant/extraneous files
     rm -f "${pkgdir}/opt/sidra/AppRun"
+    rm -f "${pkgdir}/opt/sidra/.DirIcon"
+    rm -f "${pkgdir}/opt/sidra/sidra.desktop"
 
     # ── Wrapper script ─────────────────────────────────────────────────────────
     install -dm755 "${pkgdir}/usr/bin"
@@ -120,6 +122,17 @@ DESKTOP
         install -Dm644 squashfs-root/sidra.png \
             "${pkgdir}/usr/share/icons/hicolor/256x256/apps/sidra.png"
     fi
+
+    # ── License ────────────────────────────────────────────────────────────────
+    # Install custom license (BlueOak-1.0.0)
+    # Check common locations/names for the license file
+    for _license in LICENSE LICENSE.md LICENSE.txt; do
+        if [[ -f "squashfs-root/${_license}" ]]; then
+            install -Dm644 "squashfs-root/${_license}" \
+                "${pkgdir}/usr/share/licenses/${pkgname}/${_license}"
+            break
+        fi
+    done
 
     # ── Fix permissions ────────────────────────────────────────────────────────
     chmod -R u=rwX,go=rX "${pkgdir}/opt/sidra/"
