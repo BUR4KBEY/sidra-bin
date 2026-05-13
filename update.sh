@@ -16,17 +16,17 @@ CURRENT_VERSION=$(grep -P '^pkgver=' "${PKGBUILD_FILE}" | cut -d= -f2)
 echo "Current version: ${CURRENT_VERSION}"
 echo "Latest version:  ${LATEST_VERSION}"
 
-# if [[ "${LATEST_VERSION}" == "${CURRENT_VERSION}" ]]; then
-#     echo "No update needed."
-#     exit 0
-# fi
+if [[ "${LATEST_VERSION}" == "${CURRENT_VERSION}" ]]; then
+    echo "No update needed."
+    exit 0
+fi
 
 echo "Updating to version ${LATEST_VERSION}..."
 
 # Update PKGBUILD pkgver
 sed -i "s/^pkgver=.*/pkgver=${LATEST_VERSION}/" "${PKGBUILD_FILE}"
 # Reset pkgrel to 1
-sed -i "s/^pkgrel=.*/pkgrel=4/" "${PKGBUILD_FILE}"
+sed -i "s/^pkgrel=.*/pkgrel=1/" "${PKGBUILD_FILE}"
 
 # Update checksums
 # We use 'makepkg -g' to get the new checksums and 'sed' to update them in PKGBUILD
