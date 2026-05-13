@@ -1,0 +1,72 @@
+name: Update AUR Package
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    container:
+      image: archlinux:latest
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm git base-devel curl jq openssh
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run update script
+        run: |
+          # makepkg cannot be run as root
+          useradd -m builder
+          chown -R builder:builder .
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          
+          # Run the update script as builder
+          su builder -c "./update.sh"
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          if git diff --exit-code; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Sync changes
+        if: steps.git-check.outputs.changed == 'true' || github.event_name == 'push'
+        run: |
+          # 1. Setup Git Identity
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 2. Handle GitHub Push (only if the script found an update)
+          if [ "${{ steps.git-check.outputs.changed }}" = "true" ]; then
+            git add PKGBUILD .SRCINFO
+            NEW_VER=$(grep -P '^pkgver=' PKGBUILD | cut -d= -f2)
+            git commit -m "chore: update to ${NEW_VER} [skip ci]"
+            # Push back to GitHub main
+            git push origin main
+          fi
+
+          # 3. Handle AUR Push (always push on 'push' event OR if script found an update)
+          # Setup SSH for AUR
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts
+          
+          git remote add aur ssh://aur@aur.archlinux.org/sidra-bin.git
+          git push -f aur main:master
