@@ -33,6 +33,10 @@ jobs:
           chown -R builder:builder .
           echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           
+          # Fix "dubious ownership" error
+          git config --global --add safe.directory /__w/sidra-bin/sidra-bin
+          su builder -c "git config --global --add safe.directory /__w/sidra-bin/sidra-bin"
+          
           # Run the update script as builder
           su builder -c "./update.sh"
 
