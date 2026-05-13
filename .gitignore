@@ -1,0 +1,7 @@
+# Build artefacts — never commit these to the AUR repo
+pkg/
+src/
+*.AppImage
+*.pkg.tar.zst
+*.pkg.tar.xz
+squashfs-root/
