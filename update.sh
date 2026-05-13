@@ -26,7 +26,7 @@ echo "Updating to version ${LATEST_VERSION}..."
 # Update PKGBUILD pkgver
 sed -i "s/^pkgver=.*/pkgver=${LATEST_VERSION}/" "${PKGBUILD_FILE}"
 # Reset pkgrel to 1
-sed -i "s/^pkgrel=.*/pkgrel=3/" "${PKGBUILD_FILE}"
+sed -i "s/^pkgrel=.*/pkgrel=4/" "${PKGBUILD_FILE}"
 
 # Update checksums
 # We use 'makepkg -g' to get the new checksums and 'sed' to update them in PKGBUILD
