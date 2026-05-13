@@ -70,18 +70,11 @@ jobs:
           
           # Start ssh-agent and add key
           eval $(ssh-agent -s)
-          # Use printf to handle the multi-line secret correctly and remove possible \r
           printf "%s\n" "${{ secrets.AUR_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-add ~/.ssh/id_rsa
           
-          # Add AUR to known_hosts
-          ssh-keyscan -v -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-          
-          # Verify connection (optional but helps debugging)
-          ssh -T aur@aur.archlinux.org || echo "SSH connection test result (expected for AUR)"
-          
           # 4. Handle AUR Push
+          # We use GIT_SSH_COMMAND to bypass strict host key checking in the CI environment
           git remote add aur ssh://aur@aur.archlinux.org/sidra-bin.git
-          git push -f aur main:master
+          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git push -f aur main:master
