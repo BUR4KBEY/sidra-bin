@@ -109,6 +109,8 @@ DESKTOP
     # electron-builder populates usr/share/icons/hicolor inside the AppImage
     if [[ -d "squashfs-root/usr/share/icons" ]]; then
         cp -a squashfs-root/usr/share/icons "${pkgdir}/usr/share/"
+        # Fix directory permissions for icons (ensure they are world-readable)
+        chmod -R u=rwX,go=rX "${pkgdir}/usr/share/icons"
     fi
 
     # Also install any PNG at the AppImage root as a fallback
