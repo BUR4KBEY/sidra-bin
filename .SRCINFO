@@ -1,6 +1,6 @@
 pkgbase = sidra-bin
 	pkgdesc = An elegant Apple Music desktop client for Linux. No frippery, just quality.
-	pkgver = 0.3.5
+	pkgver = 0.4.0
 	pkgrel = 1
 	url = https://github.com/wimpysworld/sidra
 	arch = x86_64
@@ -32,7 +32,7 @@ pkgbase = sidra-bin
 	provides = sidra
 	conflicts = sidra
 	options = !strip
-	source_x86_64 = sidra-bin-0.3.5.AppImage::https://github.com/wimpysworld/sidra/releases/download/0.3.5/Sidra-linux-x86_64.AppImage
-	sha256sums_x86_64 = c54440c020c733226db74ae2d97dcf2a105513d46a721fce6ba76164c56d1830
+	source_x86_64 = sidra-bin-0.4.0.AppImage::https://github.com/wimpysworld/sidra/releases/download/0.4.0/Sidra-linux-x86_64.AppImage
+	sha256sums_x86_64 = 8ad1b40e6fc80fbf525ecdbc407a079193b7276b02cd704dc815f58306fd6766
 
 pkgname = sidra-bin
