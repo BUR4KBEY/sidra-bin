@@ -1,7 +1,7 @@
 # Maintainer: Burak Seckin <rectfc@gmail.com>
 
 pkgname=sidra-bin
-pkgver=0.4.0
+pkgver=0.4.1
 pkgrel=1
 pkgdesc="An elegant Apple Music desktop client for Linux. No frippery, just quality."
 arch=('x86_64')
@@ -44,7 +44,7 @@ source_x86_64=(
     "${pkgname}-${pkgver}.AppImage::https://github.com/wimpysworld/sidra/releases/download/${pkgver}/Sidra-linux-x86_64.AppImage"
 )
 
-sha256sums_x86_64=('8ad1b40e6fc80fbf525ecdbc407a079193b7276b02cd704dc815f58306fd6766')
+sha256sums_x86_64=('02758fcbb9d691326ed1a8a71635398e0a2a999922d62a323702928f7ca602c4')
 
 prepare() {
     cd "${srcdir}"
